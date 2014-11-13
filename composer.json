@@ -1,0 +1,19 @@
+{
+    "name": "vinceg/xenforo-sdk",
+    "keywords": ["xenforo"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "VinceG",
+            "email": "vadimg88@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3"
+    },
+    "autoload": {
+        "psr-0": {
+            "VinceG\\XenForoSDK": "src/"
+        }
+    }
+}

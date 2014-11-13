@@ -1,6 +1,6 @@
 <?php
 
-defined('XF_ROOT') or define('XF_ROOT', dirname(__FILE__));
+namespace VinceG\XenForoSDK;
 
 /**
  * XenForo SDK
@@ -11,28 +11,27 @@ defined('XF_ROOT') or define('XF_ROOT', dirname(__FILE__));
  */
 class XenForoSDK
 {
-	public function __construct() {
+	public function __construct($fileDir) {
 		$startTime = microtime(true);
-		$fileDir = XF_ROOT;
 
 		require($fileDir . '/library/XenForo/Autoloader.php');
-		XenForo_Autoloader::getInstance()->setupAutoloader($fileDir . '/library');
+		\XenForo_Autoloader::getInstance()->setupAutoloader($fileDir . '/library');
 
-		XenForo_Application::initialize($fileDir . '/library', $fileDir);
-		XenForo_Application::set('page_start_time', $startTime);
-		XenForo_Session::startPublicSession();
+		\XenForo_Application::initialize($fileDir . '/library', $fileDir);
+		\XenForo_Application::set('page_start_time', $startTime);
+		\XenForo_Session::startPublicSession();
 	}
 
 	public function getVisitor() {
-		return XenForo_Visitor::getInstance();
+		return \XenForo_Visitor::getInstance();
 	}
 
 	public function getSession() {
-		return XenForo_Application::get('session');
+		return \XenForo_Application::get('session');
 	}
 
 	public function getOptions() {
-		return XenForo_Application::get('options');
+		return \XenForo_Application::get('options');
 	}
 
 	public function getOption($key, $val=null) {
@@ -46,7 +45,7 @@ class XenForoSDK
 		}
 
 		$userId = $id !== null ? $id : $this->getVisitor()->getUserId();
-		return XenForo_Model::create('XenForo_Model_User')->getFullUserById($userId);
+		return \XenForo_Model::create('\XenForo_Model_User')->getFullUserById($userId);
 	}
 
 	public function isLoggedIn() {
@@ -74,12 +73,12 @@ class XenForoSDK
 
 		if ($minLength > 0 && $usernameLength < $minLength)
 		{
-			return new XenForo_Phrase('please_enter_name_that_is_at_least_x_characters_long', array('count' => $minLength));
+			return new \XenForo_Phrase('please_enter_name_that_is_at_least_x_characters_long', array('count' => $minLength));
 		}
 
 		if ($maxLength > 0 && $usernameLength > $maxLength)
 		{
-			return new XenForo_Phrase('please_enter_name_that_is_at_most_x_characters_long', array('count' => $maxLength));
+			return new \XenForo_Phrase('please_enter_name_that_is_at_most_x_characters_long', array('count' => $maxLength));
 		}
 
 		$disallowedNames = preg_split('/\r?\n/', $this->getOption('usernameValidation', 'disallowedNames'));
@@ -94,7 +93,7 @@ class XenForoSDK
 				}
 				if (stripos($username, $name) !== false)
 				{
-					return new XenForo_Phrase('please_enter_another_name_disallowed_words');
+					return new \XenForo_Phrase('please_enter_another_name_disallowed_words');
 				}
 			}
 		}
@@ -105,14 +104,14 @@ class XenForoSDK
 			$matchRegex = str_replace('#', '\\#', $matchRegex); // escape delim only
 			if (!preg_match('#' . $matchRegex . '#i', $username))
 			{
-				return new XenForo_Phrase('please_enter_another_name_required_format');
+				return new \XenForo_Phrase('please_enter_another_name_required_format');
 			}
 		}
 
-		$censoredUserName = XenForo_Helper_String::censorString($username);
+		$censoredUserName = \XenForo_Helper_String::censorString($username);
 		if ($censoredUserName !== $username)
 		{
-			return new XenForo_Phrase('please_enter_name_that_does_not_contain_any_censored_words');
+			return new \XenForo_Phrase('please_enter_name_that_does_not_contain_any_censored_words');
 		}
 
 		// ignore check if unicode properties aren't compiled
@@ -120,33 +119,33 @@ class XenForoSDK
 		{
 			if (@preg_match("/\p{C}/u", $username))
 			{
-				return new XenForo_Phrase('please_enter_name_without_using_control_characters');
+				return new \XenForo_Phrase('please_enter_name_without_using_control_characters');
 			}
 		}
 		catch (Exception $e) {}
 
 		if (strpos($username, ',') !== false)
 		{
-			return new XenForo_Phrase('please_enter_name_that_does_not_contain_comma');
+			return new \XenForo_Phrase('please_enter_name_that_does_not_contain_comma');
 		}
 
-		if (Zend_Validate::is($username, 'EmailAddress'))
+		if (\Zend_Validate::is($username, 'EmailAddress'))
 		{
-			return new XenForo_Phrase('please_enter_name_that_does_not_resemble_an_email_address');
+			return new \XenForo_Phrase('please_enter_name_that_does_not_resemble_an_email_address');
 		}
 
-		$existingUser = XenForo_Model::create('XenForo_Model_User')->getUserByName($username);
+		$existingUser = \XenForo_Model::create('\XenForo_Model_User')->getUserByName($username);
 		if($existingUser && (!$userId || ($userId && $userId != $existingUser['user_id']))) {
-			return new XenForo_Phrase('usernames_must_be_unique');
+			return new \XenForo_Phrase('usernames_must_be_unique');
 		}
 
 		// compare against romanized name to help reduce confusable issues
 		$romanized = utf8_deaccent(utf8_romanize($username));
 		if ($romanized != $username)
 		{
-			$existingUser = XenForo_Model::create('XenForo_Model_User')->getUserByName($romanized);
+			$existingUser = \XenForo_Model::create('\XenForo_Model_User')->getUserByName($romanized);
 			if($existingUser && (!$userId || ($userId && $userId != $existingUser['user_id']))) {
-				return new XenForo_Phrase('usernames_must_be_unique');
+				return new \XenForo_Phrase('usernames_must_be_unique');
 			}
 		}
 
@@ -154,17 +153,17 @@ class XenForoSDK
 	}
 
 	public function verifyEmail($email, $userId=null) {
-		if(!Zend_Validate::is($email, 'EmailAddress')) {
-			return new XenForo_Phrase('please_enter_valid_email');
+		if(!\Zend_Validate::is($email, 'EmailAddress')) {
+			return new \XenForo_Phrase('please_enter_valid_email');
 		}
 
-		$existingUser = XenForo_Model::create('XenForo_Model_User')->getUserByEmail($email);
+		$existingUser = \XenForo_Model::create('\XenForo_Model_User')->getUserByEmail($email);
 		if($existingUser && (!$userId || ($userId && $userId != $existingUser['user_id']))) {
-			return new XenForo_Phrase('email_addresses_must_be_unique');
+			return new \XenForo_Phrase('email_addresses_must_be_unique');
 		}
 
-		if(XenForo_Helper_Email::isEmailBanned($email)) {
-			return new XenForo_Phrase('email_address_you_entered_has_been_banned_by_administrator');
+		if(\XenForo_Helper_Email::isEmailBanned($email)) {
+			return new \XenForo_Phrase('email_address_you_entered_has_been_banned_by_administrator');
 		}
 
 		return true;
@@ -175,32 +174,32 @@ class XenForoSDK
 	 *
 	 * @param string $password
 	 * @param string|false $passwordConfirm If a string, ensures that the password and the confirm are the same
-	 * @param XenForo_Authentication_Abstract|null $auth Auth object to generate the password (or null to use default)
+	 * @param \XenForo_Authentication_Abstract|null $auth Auth object to generate the password (or null to use default)
 	 * @param boolean If true, do not accept an empty password
 	 *
 	 * @return boolean
 	 */
-	public function setPassword($password, $passwordConfirm = false, XenForo_Authentication_Abstract $auth = null, $requirePassword = false)
+	public function setPassword($password, $passwordConfirm = false, \XenForo_Authentication_Abstract $auth = null, $requirePassword = false)
 	{
 		if ($requirePassword && $password === '')
 		{
-			return new XenForo_Phrase('please_enter_valid_password');
+			return new \XenForo_Phrase('please_enter_valid_password');
 		}
 
 		if ($passwordConfirm !== false && $password !== $passwordConfirm)
 		{
-			return new XenForo_Phrase('passwords_did_not_match');
+			return new \XenForo_Phrase('passwords_did_not_match');
 		}
 
 		if (!$auth)
 		{
-			$auth = XenForo_Authentication_Abstract::createDefault();
+			$auth = \XenForo_Authentication_Abstract::createDefault();
 		}
 
 		$authData = $auth->generate($password);
 		if (!$authData)
 		{
-			return new XenForo_Phrase('please_enter_valid_password');
+			return new \XenForo_Phrase('please_enter_valid_password');
 		}
 
 		return array('scheme_class' => $auth->getClassName(), 'data' => $authData);
@@ -221,7 +220,7 @@ class XenForoSDK
 
 		// Verify Password
 		$userPassword = $this->setPassword($password);
-		if(is_object($userPassword) && get_class($userPassword) == 'XenForo_Phrase') {
+		if(is_object($userPassword) && get_class($userPassword) == '\XenForo_Phrase') {
 			return $userPassword;
 		}
 
@@ -229,11 +228,11 @@ class XenForoSDK
 		$username = str_replace(' ', '_', $username);
  
 		// Create writer object
-		$writer = XenForo_DataWriter::create('XenForo_DataWriter_User');
+		$writer = \XenForo_DataWriter::create('\XenForo_DataWriter_User');
 		$info = array_merge($additional, array(
 			'username' => $username,
 			'email' => $email,
-			'user_group_id' => XenForo_Model_User::$defaultRegisteredGroupId,
+			'user_group_id' => \XenForo_Model_User::$defaultRegisteredGroupId,
 			'language_id' => $this->getVisitor()->get('language_id'),
 		));
 
@@ -250,14 +249,14 @@ class XenForoSDK
 		$user = $writer->getMergedData();
 		
 		if(!$user['user_id']) {
-			return new XenForo_Phrase('user_was_not_created');
+			return new \XenForo_Phrase('user_was_not_created');
 		}
 
 		// log the ip of the user registering
-		XenForo_Model_Ip::log($user['user_id'], 'user', $user['user_id'], 'register');
+		\XenForo_Model_Ip::log($user['user_id'], 'user', $user['user_id'], 'register');
 
 		if ($user['user_state'] == 'email_confirm') {
-			XenForo_Model::create('XenForo_Model_UserConfirmation')->sendEmailConfirmation($user);
+			\XenForo_Model::create('\XenForo_Model_UserConfirmation')->sendEmailConfirmation($user);
 		}
 
 		return $user['user_id'];
@@ -265,15 +264,15 @@ class XenForoSDK
 
 	public function validateLogin($email, $password, $remember=false, $doLogin=false) {
 		// Init
-		$loginModel = XenForo_Model::create('XenForo_Model_Login');
-		$userModel = XenForo_Model::create('XenForo_Model_User');
+		$loginModel = \XenForo_Model::create('\XenForo_Model_Login');
+		$userModel = \XenForo_Model::create('\XenForo_Model_User');
 		$hasError = null;
 
 		// Validate user info
 		$user = $userModel->validateAuthentication($email, $password, $hasError);
 		if(!$user) {
 			$loginModel->logLoginAttempt($email);
-			return new XenForo_Phrase($hasError);
+			return new \XenForo_Phrase($hasError);
 		}
 
 		// Clear login attempts
@@ -290,7 +289,7 @@ class XenForoSDK
 	}
 
 	public function login($user, $remember=false) {
-		$userModel = XenForo_Model::create('XenForo_Model_User');
+		$userModel = \XenForo_Model::create('\XenForo_Model_User');
 
 		// Set cookie if needed
 		if($remember) {
@@ -298,7 +297,7 @@ class XenForoSDK
 		}
 
 		// Log IP
-		XenForo_Model_Ip::log($user, 'user', $user, 'login');
+		\XenForo_Model_Ip::log($user, 'user', $user, 'login');
 
 		// delete current session
 		$userModel->deleteSessionActivity(0, $_SERVER['REMOTE_ADDR']);
@@ -310,7 +309,7 @@ class XenForoSDK
 	}
 
 	public function adminLogout() {
-		$session = new XenForo_Session(array('admin' => true));
+		$session = new \XenForo_Session(array('admin' => true));
 		$session->start();
 		if ($session->get('user_id') == $this->getVisitor()->getUserId()) {
 			return $session->delete();
@@ -327,37 +326,37 @@ class XenForoSDK
 		}
 
 		// Logout user
-		XenForo_Model::create('XenForo_Model_Session')->processLastActivityUpdateForLogOut($this->getVisitor()->getUserId());
+		\XenForo_Model::create('\XenForo_Model_Session')->processLastActivityUpdateForLogOut($this->getVisitor()->getUserId());
 		$this->getSession()->delete();
 
-		XenForo_Helper_Cookie::deleteAllCookies(array('session'), array('user' => array('httpOnly' => false)));
+		\XenForo_Helper_Cookie::deleteAllCookies(array('session'), array('user' => array('httpOnly' => false)));
 		$this->getVisitor()->setup(0);
 
 		return true;
 	}
 
 	public function getForumById($id, $fetchOptions=array()) {
-		return XenForo_Model::create('XenForo_Model_Forum')->getForumById($id, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Forum')->getForumById($id, $fetchOptions);
 	}
 
 	public function getForumsByIds($ids, $fetchOptions=array()) {
-		return XenForo_Model::create('XenForo_Model_Forum')->getForumsByIds($ids, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Forum')->getForumsByIds($ids, $fetchOptions);
 	}
 
 	public function getForums(array $conditions = array(), array $fetchOptions = array()) {
-		return XenForo_Model::create('XenForo_Model_Forum')->getForums($conditions, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Forum')->getForums($conditions, $fetchOptions);
 	}
 
 	public function getThreadsByIds($ids, $fetchOptions=array()) {
-		return XenForo_Model::create('XenForo_Model_Thread')->getThreadsByIds($ids, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Thread')->getThreadsByIds($ids, $fetchOptions);
 	}
 
 	public function getThreadById($id, $fetchOptions=array()) {
-		return XenForo_Model::create('XenForo_Model_Thread')->getThreadById($id, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Thread')->getThreadById($id, $fetchOptions);
 	}
 
 	public function getThreads(array $conditions, array $fetchOptions = array()) {
-		return XenForo_Model::create('XenForo_Model_Thread')->getThreads($conditions, $fetchOptions);
+		return \XenForo_Model::create('\XenForo_Model_Thread')->getThreads($conditions, $fetchOptions);
 	}
 
 	public function renderTemplate($name, $params=array(), $styleId=null, $languageId=null) {
@@ -365,7 +364,7 @@ class XenForoSDK
 		$user = $this->getUser();
 
 		// Template
-		$template = new XenForo_Template_Public($name, $params);
+		$template = new \XenForo_Template_Public($name, $params);
 		$template->setStyleId(($styleId!==null ? $styleId : $user['style_id']));
 		$template->setLanguageId(($languageId!==null ? $languageId : $user['language_id']));
 
@@ -377,7 +376,7 @@ class XenForoSDK
 		$user = $this->getUser();
 
 		// Template
-		$template = new XenForo_Template_Admin($name, $params);
+		$template = new \XenForo_Template_Admin($name, $params);
 		$template->setStyleId(($styleId!==null ? $styleId : $user['style_id']));
 		$template->setLanguageId(($languageId!==null ? $languageId : $user['language_id']));
 
