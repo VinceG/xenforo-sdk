@@ -129,7 +129,7 @@ class XenForoSDK
 			return new \XenForo_Phrase('please_enter_name_that_does_not_contain_comma');
 		}
 
-		if (Zend_Validate::is($username, 'EmailAddress'))
+		if (\Zend_Validate::is($username, 'EmailAddress'))
 		{
 			return new \XenForo_Phrase('please_enter_name_that_does_not_resemble_an_email_address');
 		}
@@ -153,7 +153,7 @@ class XenForoSDK
 	}
 
 	public function verifyEmail($email, $userId=null) {
-		if(!Zend_Validate::is($email, 'EmailAddress')) {
+		if(!\Zend_Validate::is($email, 'EmailAddress')) {
 			return new \XenForo_Phrase('please_enter_valid_email');
 		}
 
